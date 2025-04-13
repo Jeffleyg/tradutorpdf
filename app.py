@@ -19,6 +19,8 @@ def allowed_file(filename):
 @app.route("/", methods=["GET", "POST"])
 def upload_file():
     conversation = []
+    if request.method == "HEAD":
+        return "", 200
 
     if request.method == "POST":
         if 'file' not in request.files:
