@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: chatbot-tradutor-pdf
+    env: python
+    plan: free
+    buildCommand: ""
+    startCommand: python app.py
+    envVars:
+      - key: PORT
+        value: 10000
