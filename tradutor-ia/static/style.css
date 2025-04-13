@@ -1,0 +1,110 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    background: linear-gradient(135deg, #4c669f, #3b5998, #192f6a);
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.container {
+    background: #fff;
+    width: 100%;
+    max-width: 700px;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+    text-align: center;
+}
+
+header {
+    margin-bottom: 20px;
+}
+
+.logo {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 10px;
+}
+
+h2 {
+    font-size: 24px;
+    color: #4c669f;
+}
+
+.translate-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.translate-form input[type="file"],
+.translate-form select,
+.translate-form button {
+    padding: 12px 15px;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    font-size: 16px;
+}
+
+.translate-form input[type="file"] {
+    background: #f4f6fa;
+    cursor: pointer;
+}
+
+.translate-form select {
+    background: #f4f6fa;
+}
+
+.translate-form button {
+    background: #ff9800;
+    color: #fff;
+    cursor: pointer;
+    font-weight: 600;
+    transition: 0.3s ease;
+}
+
+.translate-form button:hover {
+    background: #e68900;
+}
+
+.flash-messages {
+    margin-top: 20px;
+}
+
+.flash {
+    padding: 10px;
+    border-radius: 6px;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+.flash.error {
+    background: #f44336;
+    color: #fff;
+}
+
+.chatbot-response {
+    margin-top: 30px;
+    text-align: left;
+    padding: 20px;
+    background: #f0f4f8;
+    border-radius: 12px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.chatbot-response p {
+    margin-bottom: 15px;
+    line-height: 1.6;
+    font-size: 15px;
+    color: #333;
+}
