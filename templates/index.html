@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tradutor Inteligente de PDFs</title>
+    <title>Tradutor Inteligente</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
@@ -11,7 +11,7 @@
     <div class="container">
         <header>
             <img src="{{ url_for('static', filename='images/chatbot.png') }}" alt="Chatbot" class="logo">
-            <h2>Tradutor Inteligente de PDFs</h2>
+            <h2>Tradutor Inteligente Multifuncional</h2>
         </header>
 
         {% with messages = get_flashed_messages(with_categories=true) %}
@@ -24,28 +24,183 @@
             {% endif %}
         {% endwith %}
 
-        <form action="/" method="post" enctype="multipart/form-data" class="translate-form">
-            <input type="file" name="file" required>
-            <select name="idioma">
-                <option value="en">🇺🇸 Inglês</option>
-                <option value="fr">🇫🇷 Francês</option>
-                <option value="es">🇪🇸 Espanhol</option>
-                <option value="de">🇩🇪 Alemão</option>
-            </select>
-            <button type="submit">Traduzir PDF</button>
-        </form>
+        <div class="tabs">
+            <button class="tab-button active" data-tab="translate">Traduzir</button>
+            <button class="tab-button" data-tab="summarize">Resumir</button>
+        </div>
 
-        {% if conversation %}
-            <div class="chatbot-response">
-                {% for chat in conversation %}
-                    {% for paragraph in chat.message.split('\n') %}
+        <div class="tab-content active" id="translate-tab">
+            <form action="/translate" method="post" enctype="multipart/form-data" class="action-form">
+                <div class="input-group">
+                    <textarea name="text" placeholder="Digite o texto para traduzir..."></textarea>
+                    <span class="or">OU</span>
+                    <input type="file" name="file" accept=".pdf,.png,.jpg,.jpeg">
+                </div>
+                <div class="options">
+                    <select name="idioma">
+                        <option value="en">🇺🇸 Inglês</option>
+                        <option value="fr">🇫🇷 Francês</option>
+                        <option value="es">🇪🇸 Espanhol</option>
+                        <option value="de">🇩🇪 Alemão</option>
+                        <option value="it">🇮🇹 Italiano</option>
+                        <option value="pt">🇵🇹 Português</option>
+                        <!-- <option value="zh">🇨🇳 Chinês</option> -->
+                        <option value="ja">🇯🇵 Japonês</option>
+                        <option value="ru">🇷🇺 Russo</option>
+                        <option value="ar">🇸🇦 Árabe</option>
+                        <option value="ko">🇰🇷 Coreano</option>
+                        <!-- <option value="cr"> Crioulo haitiano</option> -->
+                    </select>
+                    <label>
+                        <input type="checkbox" name="context_aware"> Tradução com contexto
+                    </label>
+                    <button type="submit">Traduzir</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="tab-content" id="summarize-tab">
+            <form action="/summarize" method="post" enctype="multipart/form-data" class="action-form">
+                <div class="input-group">
+                    <textarea name="text" placeholder="Digite o texto para resumir..."></textarea>
+                    <span class="or">OU</span>
+                    <input type="file" name="file" accept=".pdf,.png,.jpg,.jpeg">
+                </div>
+                <div class="options">
+                    <select name="length">
+                        <option value="short">Resumo curto</option>
+                        <option value="medium">Resumo médio</option>
+                        <option value="long">Resumo detalhado</option>
+                    </select>
+                    <button type="submit">Resumir</button>
+                </div>
+            </form>
+        </div>
+
+        {% if result %}
+            <div class="result-container">
+                <h3>Resultado:</h3>
+                <div class="result-content">
+                    {% for paragraph in result.split('\n') %}
                         {% if paragraph.strip() %}
                             <p>{{ paragraph }}</p>
                         {% endif %}
                     {% endfor %}
-                {% endfor %}
+                </div>
+                <button class="copy-btn" onclick="copyToClipboard()">Copiar</button>
             </div>
         {% endif %}
     </div>
+
+    <script>
+        // Tab functionality
+        document.querySelectorAll('.tab-button').forEach(button => {
+            button.addEventListener('click', () => {
+                document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+                
+                button.classList.add('active');
+                const tabId = button.getAttribute('data-tab') + '-tab';
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
+
+    //     function copyToClipboard() {
+    //     const resultContent = document.querySelector('.result-content');
+    //     if (!resultContent) {
+    //         alert('Nenhum resultado para copiar!');
+    //         return;
+    //     }
+
+    //     const resultText = resultContent.innerText;
+        
+    //     navigator.clipboard.writeText(resultText).then(() => {
+    //         alert('Texto copiado com sucesso!');
+    //     }).catch(err => {
+    //         console.error('Erro ao copiar:', err);
+    //         // Fallback para método antigo se o novo falhar
+    //         const textarea = document.createElement('textarea');
+    //         textarea.value = resultText;
+    //         document.body.appendChild(textarea);
+    //         textarea.select();
+    //         try {
+    //             document.execCommand('copy');
+    //             alert('Texto copiado!');
+    //         } catch (e) {
+    //             alert('Falha ao copiar o texto. Tente manualmente.');
+    //         }
+    //         document.body.removeChild(textarea);
+    //     });
+    // }
+
+    async function copyToClipboard() {
+        try {
+            const resultContent = document.querySelector('.result-content');
+            
+            if (!resultContent || !resultContent.innerText.trim()) {
+                showFeedback('Nenhum conteúdo para copiar!', 'error');
+                return;
+            }
+
+            const textToCopy = resultContent.innerText;
+            
+            // Método moderno (funciona na maioria dos navegadores atuais)
+            try {
+                await navigator.clipboard.writeText(textToCopy);
+                showFeedback('Texto copiado com sucesso!', 'success');
+            } catch (err) {
+                // Fallback para método antigo
+                const textarea = document.createElement('textarea');
+                textarea.value = textToCopy;
+                textarea.style.position = 'fixed';  // Evita scroll para o elemento
+                document.body.appendChild(textarea);
+                textarea.select();
+                
+                const successful = document.execCommand('copy');
+                document.body.removeChild(textarea);
+                
+                if (successful) {
+                    showFeedback('Texto copiado!', 'success');
+                } else {
+                    throw new Error('Fallback method failed');
+                }
+            }
+        } catch (err) {
+            console.error('Falha ao copiar:', err);
+            showFeedback('Falha ao copiar. Tente manualmente (Ctrl+C).', 'error');
+        }
+    }
+
+    function showFeedback(message, type) {
+        // Remove feedbacks anteriores
+        const oldFeedback = document.querySelector('.copy-feedback');
+        if (oldFeedback) oldFeedback.remove();
+        
+        // Cria novo elemento de feedback
+        const feedback = document.createElement('div');
+        feedback.className = `copy-feedback ${type}`;
+        feedback.textContent = message;
+        
+        // Estilização básica
+        feedback.style.position = 'fixed';
+        feedback.style.bottom = '20px';
+        feedback.style.left = '50%';
+        feedback.style.transform = 'translateX(-50%)';
+        feedback.style.padding = '10px 20px';
+        feedback.style.borderRadius = '5px';
+        feedback.style.color = 'white';
+        feedback.style.backgroundColor = type === 'success' ? '#4CAF50' : '#F44336';
+        feedback.style.zIndex = '1000';
+        feedback.style.boxShadow = '0 2px 10px rgba(0,0,0,0.2)';
+        
+        document.body.appendChild(feedback);
+        
+        // Remove após 3 segundos
+        setTimeout(() => {
+            feedback.style.opacity = '0';
+            setTimeout(() => feedback.remove(), 500);
+        }, 3000);
+    }
+    </script>
 </body>
 </html>
